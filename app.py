@@ -4,6 +4,7 @@ import requests
 from flask import Flask, render_template, request, redirect, url_for
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
@@ -33,7 +34,6 @@ def handle_share():
     profile_name = request.form.get('profile_name')
     username = request.form.get('username')
     password = request.form.get('password')
-    mode = request.form.get('execution_mode')
     image_url = request.form.get('image_url')
     description = request.form.get('description')
 
@@ -51,7 +51,7 @@ def handle_share():
         except Exception as e:
             print(f"Database update failed: {e}")
     else:
-        # If blank, pull the existing saved username and password from Supabase
+        # If fields are left blank, pull the existing saved credentials from Supabase
         try:
             response = requests.get(f"{TABLE_URL}?profile_name=eq.{profile_name}", headers=HEADERS)
             if response.status_code == 200 and len(response.json()) > 0:
@@ -64,11 +64,7 @@ def handle_share():
 
     # 3. Configure Selenium Webdriver for Cloud Environment
     options = Options()
-    
-    # Render cloud servers require headless execution
-    if mode == "headless":
-        options.add_argument("--headless=new")
-        
+    options.add_argument("--headless=new")  # STRICTLY REQUIRED ON CLOUD SERVERS
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
@@ -76,8 +72,13 @@ def handle_share():
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
 
+    # Direct paths to the custom cloud binary installations from render.yaml
+    options.binary_location = "/opt/render/project/.render/chrome/chrome-linux64/chrome"
+    chrome_service = Service("/opt/render/project/.render/chrome/chromedriver-linux64/chromedriver")
+
     try:
-        driver = webdriver.Chrome(options=options)
+        # Initialize browser with service paths
+        driver = webdriver.Chrome(service=chrome_service, options=options)
         
         # Hide Selenium signature
         driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -104,21 +105,21 @@ def handle_share():
                 
             password_input.send_keys(Keys.ENTER)
             print("Login submitted. Waiting for dashboard...")
-            time.sleep(15)  # Pause for 2-factor verification or human check window if direct
+            time.sleep(15)  # Pause window for authentication processing
         
-        # 5. Always load the Home Page
+        # 5. Load the Home Page to confirm session placement
         driver.get("https://www.instagram.com/")
         time.sleep(6)
         
         # Close browser session safely
         driver.quit()
-        print("Automation processing batch sequence finished.")
+        print("Automation processing batch sequence finished successfully.")
         
     except Exception as error:
         print(f"Automation Execution Failure: {error}")
         return f"Automation Halted: {error}", 500
 
-    # Redirect back to home with success status for browser notification
+    # Redirect back to home with success status for browser notification banner
     return redirect(url_for('index', status='success', account=profile_name))
 
 if __name__ == '__main__':
