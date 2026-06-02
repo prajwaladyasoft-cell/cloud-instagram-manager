@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Instagram Manager</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+            background-color: #f4f5f9; 
+            color: #333; 
+        }
+        .container { 
+            max-width: 550px; 
+            background: #ffffff; 
+            padding: 35px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06); 
+            margin: 0 auto; 
+        }
+        h2 { 
+            margin-top: 0; 
+            color: #111; 
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        hr { 
+            border: 0; 
+            border-top: 1px solid #eaeaea; 
+            margin: 20px 0; 
+        }
+        label { 
+            font-weight: 600; 
+            display: block; 
+            margin-top: 18px; 
+            margin-bottom: 6px; 
+            color: #444; 
+            font-size: 14px;
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px 14px; 
+            margin-bottom: 5px; 
+            border-radius: 6px; 
+            border: 1px solid #ccc; 
+            box-sizing: border-box; 
+            font-size: 14px; 
+            background-color: #fff;
+            transition: border-color 0.2s;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #402D98;
+            outline: none;
+        }
+        .row { 
+            display: flex; 
+            gap: 15px; 
+        }
+        .row .field { 
+            flex: 1; 
+        }
+        button { 
+            width: 100%; 
+            background-color: #402D98; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 25px; 
+            transition: background-color 0.2s, transform 0.1s; 
+        }
+        button:hover { 
+            background-color: #2e1f70; 
+        }
+        button:active {
+            transform: scale(0.99);
+        }
+        .hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📷 Cloud Instagram Manager</h2>
+        <p style="color: #666; margin: 0; font-size: 14px;">Manage accounts, credentials, and post automation directly from the cloud.</p>
+        <hr>
+        
+        <form action="/share" method="POST">
+            
+            <label for="profile_name">Select Profile Target</label>
+            <select name="profile_name" id="profile_name" required>
+                <option value="elite_tennis.academy">elite_tennis.academy</option>
+                <option value="spruha2072">spruha2072</option>
+                <option value="new_account">Add / Update Custom Profile</option>
+            </select>
+
+            <div class="row">
+                <div class="field">
+                    <label for="username">Username / Email</label>
+                    <input type="text" name="username" id="username" placeholder="Optional if already saved">
+                    <div class="hint">Updates Supabase records</div>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" placeholder="Optional if already saved">
+                    <div class="hint">Stored securely online</div>
+                </div>
+            </div>
+
+            <label for="execution_mode">Browser Launch Mode</label>
+            <select name="execution_mode" id="execution_mode">
+                <option value="headless">Background Window (Cloud Server Optimized)</option>
+                <option value="direct">Direct Window (Local Visual Setup)</option>
+            </select>
+            <div class="hint">Background mode is required for running completely on Render servers.</div>
+
+            <label for="image_url">Image Resource URL</label>
+            <input type="url" name="image_url" id="image_url" placeholder="https://images.unsplash.com/photo-example.jpg" required>
+            <div class="hint">Direct link to the image you want the automation tool to upload</div>
+
+            <label for="description">Post Description / Caption</label>
+            <textarea name="description" id="description" rows="4" placeholder="Write your post details, hashtags, and description here..." required></textarea>
+
+            <button type="submit">🚀 Run Automation & Share</button>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('status') === 'success') {
+            const targetAccount = urlParams.get('account') || "Instagram";
+            
+            if (Notification.permission === "granted") {
+                new Notification("Automation Dispatched!", {
+                    body: `Successfully processed tasks for profile: ${targetAccount}`,
+                    icon: "https://cdn-icons-png.flaticon.com/512/174/174855.png"
+                });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification("Automation Dispatched!");
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
