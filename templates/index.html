@@ -95,7 +95,17 @@
         <h2>📷 Cloud Instagram Manager</h2>
         <p style="color: #666; margin: 0; font-size: 14px;">Manage accounts, credentials, and post automation directly from the cloud.</p>
         <hr>
-        
+        {% if request.args.get('status') == 'success' %}
+    <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-weight: bold;">
+        🎉 Success for {{ request.args.get('account') }}: {{ request.args.get('msg') }}
+    </div>
+{% endif %}
+
+{% if request.args.get('status') == 'error' %}
+    <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; font-weight: bold;">
+        ⚠️ Automation Alert: {{ request.args.get('msg') }}
+    </div>
+{% endif %}
         <form action="/share" method="POST">
             
             <label for="profile_name">Select Profile Target</label>
